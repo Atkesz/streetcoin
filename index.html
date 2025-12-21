@@ -1,251 +1,399 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hu">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0b0f14" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>StreetCoin (STC)</title>
-  <meta name="description" content="StreetCoin (STC) – közösségi token az Ethereum hálózaton. Átláthatóság, egyszerűség, fokozatos építkezés." />
 
   <style>
     :root{
-      /* LETISZTULT, VILÁGOSABB ALAP */
-      --bg1: #6f56d9;     /* lila */
-      --bg2: #2fd4a6;     /* zöld */
-      --bg3: #0b0f14;     /* mély háttér a szélekhez */
+      /* =========================================================
+         EZT ÁLLÍTOD, HA MÉG BELJEBB KELL HOZNI A LOGÓT + FÜLEKET
+         nagyobb szám = beljebb (több "szélső" padding)
+         ========================================================= */
+      --edge-pad: clamp(44px, 3.6vw, 84px);
 
-      --text:#e8edf3;
-      --muted:#a8b5c4;
-      --accent:#6ee7ff;
-      --accent2:#a78bfa;
+      --maxw: 1100px;
 
-      --card: rgba(16,24,38,.66);    /* kártya üveg, de NINCS extra overlay */
-      --border: rgba(255,255,255,.12);
-      --shadow: 0 14px 44px rgba(0,0,0,.28);
-      --radius: 18px;
+      --bg1: #2b5c9a;
+      --bg2: #2bb6a3;
 
-      /* STC watermark */
-      --wm-opacity: .12;     /* látható, de nem zavar */
-      --wm-size: clamp(240px, 38vw, 680px);
-      --wm-y: 120px;         /* feljebb/lejjebb */
+      --card: rgba(10, 20, 35, 0.55);
+      --card2: rgba(10, 20, 35, 0.45);
+
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.72);
+
+      --btn: rgba(255,255,255,0.14);
+      --btn2: rgba(255,255,255,0.10);
+
+      --stroke: rgba(255,255,255,0.14);
+      --stroke2: rgba(255,255,255,0.10);
+
+      --shadow: 0 18px 55px rgba(0,0,0,0.22);
+      --shadow2: 0 12px 35px rgba(0,0,0,0.18);
+
+      --r: 18px;
+      --r2: 14px;
+
+      --gap: 18px;
+      --gap2: 14px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{ box-sizing: border-box; }
+    html,body{ height: 100%; }
     body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      color:var(--text);
-      overflow-x:hidden;
-
-      /* EGYETLEN alap háttér: lila -> zöld (nincs plusz sötét réteg középen) */
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
       background:
-        radial-gradient(1200px 900px at 15% 15%, rgba(255,255,255,.12), transparent 60%),
-        radial-gradient(1200px 900px at 85% 30%, rgba(255,255,255,.10), transparent 62%),
-        linear-gradient(90deg, rgba(111,86,217,.92) 0%, rgba(47,212,166,.92) 100%),
-        var(--bg3);
-      background-attachment: fixed;
+        radial-gradient(1200px 700px at 20% 20%, rgba(255,255,255,0.12), transparent 60%),
+        radial-gradient(1000px 650px at 70% 40%, rgba(255,255,255,0.10), transparent 60%),
+        linear-gradient(115deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
     }
 
-    /* pöttyök (fixen, a háttéren) */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:.85;
-      background:
-        radial-gradient(circle at 12% 78%, rgba(232,237,243,.13) 0 130px, transparent 131px),
-        radial-gradient(circle at 86% 74%, rgba(232,237,243,.11) 0 160px, transparent 161px),
-        radial-gradient(circle at 70% 26%, rgba(232,237,243,.10) 0 105px, transparent 106px),
-        radial-gradient(circle at 22% 22%, rgba(232,237,243,.10) 0 120px, transparent 121px),
-        radial-gradient(circle at 35% 62%, rgba(232,237,243,.08) 0 95px, transparent 96px),
-        radial-gradient(circle at 58% 78%, rgba(232,237,243,.07) 0 140px, transparent 141px);
+    /* háttér "buborékok" */
+    .bg-bubbles{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      filter: blur(0.2px);
     }
+    .bubble{
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.20);
+      mix-blend-mode: overlay;
+    }
+    .b1{ width: 520px; height: 520px; left: -120px; top: 40px; }
+    .b2{ width: 440px; height: 440px; left: 160px; top: 220px; opacity: 0.18; }
+    .b3{ width: 520px; height: 520px; right: 70px; top: 120px; opacity: 0.16; }
+    .b4{ width: 680px; height: 680px; right: -250px; bottom: -260px; opacity: 0.18; }
 
+    /* oldal keret */
     .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:18px 18px 70px;
-      position:relative;
+      width: 100%;
+      padding-left: var(--edge-pad);
+      padding-right: var(--edge-pad);
     }
 
-    /* STC watermark: ÉLES, NINCS BLUR, NINCS MOZGÁS */
-    .wm{
-      position:fixed;
-      left:50%;
-      top: var(--wm-y);
-      transform: translateX(-50%);
-      pointer-events:none;
-      user-select:none;
-      z-index:0;
-      width: min(1200px, 100%);
-      display:flex;
-      justify-content:center;
-    }
-    .wm span{
-      font-weight:900;
-      letter-spacing:.12em;
-      font-size: var(--wm-size);
-      line-height:1;
-      color: rgba(232,237,243,var(--wm-opacity));
-      text-shadow:
-        0 0 14px rgba(110,231,255,.10),
-        0 0 28px rgba(167,139,250,.10);
-      transform: translateZ(0);
-    }
-
+    /* HEADER */
     header{
-      position:relative;
-      z-index:2;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      padding:10px 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.06));
+      border-bottom: 1px solid rgba(255,255,255,0.10);
     }
 
-    .brand{display:flex; align-items:center; gap:12px}
-    .logo{
-      width:44px; height:44px; border-radius:16px;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      box-shadow: 0 12px 35px rgba(110,231,255,.18);
-      flex:0 0 auto;
+    .topbar{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 0;
     }
-    .brand h1{font-size:16px; margin:0; letter-spacing:.4px}
-    .subline{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px}
+
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+    }
+
+    .logo{
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      flex: 0 0 auto;
+    }
+
+    .logo span{
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      font-size: 12px;
+      opacity: 0.95;
+    }
+
+    .brand-title{
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand-title strong{
+      font-size: 14px;
+      letter-spacing: 0.2px;
+    }
+    .brand-title small{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    nav{
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
     .pill{
-      font-size:12px; color:var(--muted);
-      border:1px solid var(--border);
-      padding:6px 10px; border-radius:999px;
-      background: rgba(15,22,35,.30);
-      backdrop-filter: blur(10px);
-    }
-    .pill strong{color:var(--text); font-weight:600}
-    .pill.warn{border-color: rgba(245,158,11,.35)}
-
-    nav{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
-    .tab{
-      border:1px solid var(--border);
-      background: rgba(15,22,35,.34);
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,0.18);
       color: var(--text);
-      padding:10px 12px;
-      border-radius:999px;
-      cursor:pointer;
-      user-select:none;
-      font-size:13px;
-      white-space:nowrap;
-      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 120ms ease, background 160ms ease, border-color 160ms ease;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
-    .tab:hover{border-color: rgba(255,255,255,.22)}
-    .tab:active{transform: translateY(1px)}
-    .tab.active{
-      background: linear-gradient(135deg, rgba(110,231,255,.20), rgba(167,139,250,.20));
-      border-color: rgba(110,231,255,.30);
+    .pill:hover{
+      transform: translateY(-1px);
+      background: rgba(0,0,0,0.25);
+      border-color: rgba(255,255,255,0.20);
+    }
+    .pill.active{
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.28);
+    }
+
+    .lang{
+      display: inline-flex;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-left: 8px;
+    }
+    .lang button{
+      border: 0;
+      background: rgba(0,0,0,0.18);
+      color: var(--text);
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .lang button.active{
+      background: rgba(255,255,255,0.18);
+    }
+
+    /* MAIN */
+    main{
+      padding: 26px 0 70px;
     }
 
     .hero{
-      position:relative;
-      z-index:2;
-      padding:8px 0 6px;
+      padding: 34px 0 22px;
+      text-align: center;
     }
-    .hero h2{font-size:42px; line-height:1.05; margin:0 0 12px}
-    .hero p{color:var(--muted); font-size:16px; max-width:820px; margin:0 0 14px; line-height:1.6}
+    .hero h1{
+      margin: 0;
+      font-size: clamp(30px, 3.6vw, 44px);
+      letter-spacing: 0.2px;
+      text-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+    .hero p{
+      margin: 12px auto 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
-    .grid{
-      position:relative;
-      z-index:2;
-      display:grid;
-      grid-template-columns:repeat(12,1fr);
-      gap:14px;
-      margin-top:18px;
+    /* cards layout - nem nyúlik el */
+    .cards{
+      max-width: var(--maxw);
+      margin: 18px auto 0;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: var(--gap);
+      align-items: stretch;
     }
 
     .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      padding:16px;
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: var(--r);
+      box-shadow: var(--shadow2);
+      padding: 18px;
+      text-align: left;
+      min-width: 0;
     }
-    .card h3{margin:0 0 10px; font-size:14px; color:#d7ecff; letter-spacing:.2px}
-    .card p{margin:0; color:var(--muted); font-size:14px; line-height:1.55}
 
-    .c1{grid-column:span 7}
-    .c2{grid-column:span 5}
+    .card h3{
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+    }
 
-    code{
-      display:block;
-      padding:12px;
-      border-radius:14px;
-      border:1px dashed rgba(255,255,255,.22);
-      background: rgba(12,19,32,.70);
-      color:#d7ecff;
-      overflow:auto;
+    .codebox{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.12);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 13px;
+      font-size: 12px;
+      overflow: hidden;
+    }
+    .codebox code{
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      max-width: 100%;
+      opacity: 0.95;
     }
 
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .actions{
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
     .btn{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:10px 12px; border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(15,22,35,.34);
-      color:var(--text);
-      cursor:pointer;
-      user-select:none;
-      white-space:nowrap;
-      font-size:13px;
-      transition: transform .08s ease, border-color .12s ease, background .12s ease;
-      text-decoration:none;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.10);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform 120ms ease, background 160ms ease, border-color 160ms ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
     }
-    .btn:hover{border-color: rgba(255,255,255,.22)}
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{
-      background: linear-gradient(135deg, rgba(110,231,255,.22), rgba(167,139,250,.22));
-      border-color: rgba(110,231,255,.30);
-    }
-
-    .mini{font-size:12px; color:var(--muted); margin-top:10px; line-height:1.45}
-
-    .kpi{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px}
-    .kpi .box{border:1px solid var(--border); border-radius:14px; padding:12px; background: rgba(15,22,35,.34)}
-    .kpi .big{font-size:18px; margin:0 0 2px; color:var(--text)}
-    .kpi .small{font-size:12px; color:var(--muted); margin:0}
-
-    .list{margin:10px 0 0; padding:0; list-style:none; display:grid; gap:8px}
-    .list li{
-      display:flex; gap:10px; align-items:flex-start;
-      padding:10px 12px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      background: rgba(15,22,35,.34);
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.45;
-    }
-    .dot{
-      width:10px; height:10px; border-radius:99px; margin-top:4px;
-      background: rgba(110,231,255,.95);
-      box-shadow: 0 0 0 4px rgba(110,231,255,.16);
-      flex:0 0 auto;
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.20);
     }
 
-    .section{display:none}
-    .section.active{display:block}
+    .hint{
+      margin-top: 10px;
+      color: rgba(255,255,255,0.70);
+      font-size: 12px;
+      line-height: 1.35;
+    }
 
-    footer{
-      position:relative;
-      z-index:2;
-      margin-top:16px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.55;
-      border-top: 1px solid rgba(255,255,255,.10);
-      padding-top: 14px;
+    .token-grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .mini{
+      background: var(--card2);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+    .mini strong{
+      display: block;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+    }
+    .mini span{
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .disclaimer{
+      max-width: var(--maxw);
+      margin: 16px auto 0;
+      text-align: center;
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.45;
+      padding: 0 10px;
+    }
+
+    /* TAB CONTENT */
+    .tab{
+      max-width: var(--maxw);
+      margin: 22px auto 0;
+      display: none;
+    }
+    .tab.active{
+      display: block;
+    }
+
+    .panel{
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r);
+      padding: 18px;
+      box-shadow: var(--shadow2);
+    }
+    .panel h2{
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .panel p{
+      margin: 0 0 10px;
+      color: rgba(255,255,255,0.80);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .panel ul{
+      margin: 10px 0 0 18px;
+      color: rgba(255,255,255,0.80);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .panel li{ margin: 6px 0; }
+
+    .formRow{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .field{
+      display: grid;
+      gap: 8px;
+    }
+    label{
+      font-size: 13px;
+      color: rgba(255,255,255,0.82);
+    }
+    input, textarea{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      outline: none;
+      font-family: var(--font);
+      font-size: 14px;
+    }
+    textarea{
+      min-height: 120px;
+      resize: vertical;
     }
 
     .toast{
@@ -253,322 +401,552 @@
       left: 50%;
       bottom: 18px;
       transform: translateX(-50%);
-      background: rgba(15,22,35,.86);
-      border: 1px solid rgba(255,255,255,.14);
-      color: var(--text);
+      background: rgba(0,0,0,0.72);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.92);
       padding: 10px 12px;
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      display: none;
-      align-items: center;
-      gap: 10px;
-      max-width: calc(100% - 24px);
-      z-index: 9999;
-      backdrop-filter: blur(10px);
+      border-radius: 12px;
       font-size: 13px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      max-width: min(560px, calc(100vw - 36px));
+      text-align: center;
     }
-    .toast.show{display:flex}
-    .toast .badge{
-      width: 10px; height: 10px; border-radius: 99px;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34,197,94,.18);
-      flex: 0 0 auto;
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
     }
 
-    @media (max-width:860px){
-      .c1,.c2{grid-column:span 12}
-      .hero h2{font-size:34px}
-      .kpi{grid-template-columns:1fr}
-      header{flex-direction:column; align-items:flex-start}
-      nav{justify-content:flex-start}
-      .wm{top: 150px;}
+    /* RESPONSIVE */
+    @media (max-width: 980px){
+      .cards{
+        grid-template-columns: 1fr;
+      }
+      .brand{ min-width: 180px; }
+    }
+    @media (max-width: 640px){
+      .formRow{
+        grid-template-columns: 1fr;
+      }
+      nav{ gap: 8px; }
+      .pill{ padding: 9px 10px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- STC watermark (fix, éles) -->
-  <div class="wm" aria-hidden="true"><span>STC</span></div>
-
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1>StreetCoin <span class="pill"><strong>STC</strong></span></h1>
-          <div class="subline">
-            <span class="pill">Network: <strong>Ethereum</strong></span>
-            <span class="pill warn">Status: <strong>Review pending</strong></span>
-          </div>
-        </div>
-      </div>
-
-      <nav aria-label="Fülek">
-        <button class="tab active" data-tab="home" type="button">Kezdőlap</button>
-        <button class="tab" data-tab="about" type="button">Mi a StreetCoin?</button>
-        <button class="tab" data-tab="tech" type="button">Technikai adatok</button>
-        <button class="tab" data-tab="feedback" type="button">Visszajelzés</button>
-      </nav>
-    </header>
-
-    <!-- KEZDŐLAP -->
-    <section class="hero section active" id="home">
-      <h2>Egyszerű. Átlátható.<br/>Közösségi.</h2>
-      <p>
-        A StreetCoin (STC) egy közösségi token az Ethereum hálózaton. A cél: tiszta kommunikáció,
-        fokozatos építkezés és átlátható információk – ígéretek és túlzások nélkül.
-      </p>
-
-      <div class="grid">
-        <div class="card c1">
-          <h3>Contract cím</h3>
-          <code id="contract">0x165816f98582b36984ADc5719030869c48dAc9eb</code>
-          <div class="row" style="margin-top:12px">
-            <button class="btn" id="copyContract" type="button">📋 Másolás</button>
-            <button class="btn primary" id="howAdd" type="button">➕ Token hozzáadás (wallet)</button>
-          </div>
-          <div class="mini">Tipp: ha valahol nem található név alapján, mindig a contract címmel dolgozz.</div>
-        </div>
-
-        <div class="card c2">
-          <h3>Token adatok</h3>
-          <div class="kpi">
-            <div class="box">
-              <p class="big">1 000 000 000</p>
-              <p class="small">Total supply</p>
-            </div>
-            <div class="box">
-              <p class="big">STC</p>
-              <p class="small">Symbol</p>
-            </div>
-            <div class="box">
-              <p class="big">ERC-20</p>
-              <p class="small">Standard</p>
-            </div>
-          </div>
-          <div class="mini">Ez az oldal tájékoztató jellegű. Nincs hozamígéret, nincs befektetési ajánlás.</div>
-        </div>
-      </div>
-
-      <footer>
-        Figyelmeztetés: a kriptovaluták kockázatosak. Ez az oldal kizárólag tájékoztató jellegű,
-        nem befektetési tanács, és nem ígér hozamot.
-      </footer>
-    </section>
-
-    <!-- MI A STREETCOIN -->
-    <section class="hero section" id="about">
-      <h2>Mi a StreetCoin?</h2>
-      <div class="grid">
-        <div class="card c1">
-          <h3>StreetCoin – „valódi, de kicsi”</h3>
-          <p>
-            A StreetCoin valódi blokkláncon működik, valódi tranzakciókkal. Nem demo és nem játékpénz.
-            Egy átlátható, kis léptékű kriptóprojekt, amelynek célja, hogy megértsd a blokklánc működését a gyakorlatban —
-            valódi környezetben.
-          </p>
-        </div>
-        <div class="card c2">
-          <h3>Mit jelent ez röviden?</h3>
-          <ul class="list">
-            <li><span class="dot"></span><span>Nincs hozamígéret, nincs túlzás — csak tiszta infó.</span></li>
-            <li><span class="dot"></span><span>Tanulás: hogyan működik a cím, tranzakció, contract.</span></li>
-            <li><span class="dot"></span><span>Fokozatos építkezés: lépésről lépésre.</span></li>
-          </ul>
-        </div>
-      </div>
-
-      <footer>
-        Figyelmeztetés: a kriptovaluták kockázatosak. Ez az oldal kizárólag tájékoztató jellegű,
-        nem befektetési tanács, és nem ígér hozamot.
-      </footer>
-    </section>
-
-    <!-- TECHNIKAI ADATOK -->
-    <section class="hero section" id="tech">
-      <h2>Technikai adatok</h2>
-      <div class="grid">
-        <div class="card c1">
-          <h3>Contract</h3>
-          <code id="contract2">0x165816f98582b36984ADc5719030869c48dAc9eb</code>
-          <div class="row" style="margin-top:12px">
-            <button class="btn" id="copyContract2" type="button">📋 Másolás</button>
-            <button class="btn" id="openExplorer" type="button">🔎 Megnyitás Etherscanen</button>
-          </div>
-          <div class="mini">Ez csak megnyit egy linket böngészőben (nem Outlook, nem email).</div>
-        </div>
-
-        <div class="card c2">
-          <h3>Alap adatok</h3>
-          <ul class="list">
-            <li><span class="dot"></span><span>Hálózat: <strong>Ethereum</strong></span></li>
-            <li><span class="dot"></span><span>Standard: <strong>ERC-20</strong></span></li>
-            <li><span class="dot"></span><span>Symbol: <strong>STC</strong></span></li>
-            <li><span class="dot"></span><span>Decimals: <strong>18</strong></span></li>
-          </ul>
-        </div>
-
-        <div class="card c1">
-          <h3>Hogyan add hozzá wallethez? (Web3)</h3>
-          <p>
-            A token hozzáadás általában a walletben így megy:
-            <strong>Import token / Custom token</strong> → beilleszted a <strong>contract címet</strong>.
-          </p>
-          <ul class="list">
-            <li><span class="dot"></span><span>Contract cím: fent másolható.</span></li>
-            <li><span class="dot"></span><span>Ha friss a token, név alapján nem mindig található — ez normális.</span></li>
-            <li><span class="dot"></span><span>Ha elakadsz: írsz, és megyünk lépésről lépésre.</span></li>
-          </ul>
-        </div>
-
-        <div class="card c2">
-          <h3>Kapcsolat</h3>
-          <div class="row" style="margin-top:10px">
-            <div class="btn" style="cursor:default">📧 <span id="emailTextTech">streetcoin.stc@gmail.com</span></div>
-            <button class="btn primary" id="copyEmailTech" type="button">📋 Email másolása</button>
-          </div>
-          <div class="mini">Nem nyit levelezőt — csak másol.</div>
-        </div>
-      </div>
-
-      <footer>
-        Figyelmeztetés: a kriptovaluták kockázatosak. Ez az oldal kizárólag tájékoztató jellegű,
-        nem befektetési tanács, és nem ígér hozamot.
-      </footer>
-    </section>
-
-    <!-- VISSZAJELZÉS -->
-    <section class="hero section" id="feedback">
-      <h2>Visszajelzés / ötletek</h2>
-      <div class="grid">
-        <div class="card c1">
-          <h3>Visszajelzés / ötletek</h3>
-          <p>
-            Ez a projekt folyamatosan alakul. Ha van észrevételed, gondolatod vagy ötleted a StreetCoin működésével kapcsolatban,
-            itt megoszthatod.
-          </p>
-          <p style="margin-top:10px;">
-            Nem minden visszajelzés kerül felhasználásra, de minden véleményt elolvasunk.
-          </p>
-
-          <div class="row" style="margin-top:12px">
-            <button class="btn primary" id="copyEmail" type="button">📋 Email másolása</button>
-            <a class="btn" id="gmailLink" href="#" target="_blank" rel="noopener">🌐 Megnyitás Gmailben</a>
-          </div>
-
-          <div class="mini">
-            Tipp: ha nem akarsz webes levelet, elég az „Email másolása”, és beilleszted bárhova.
-          </div>
-        </div>
-
-        <div class="card c2">
-          <h3>Kapcsolat</h3>
-          <ul class="list">
-            <li><span class="dot"></span><span>Email: <strong id="emailText">streetcoin.stc@gmail.com</strong></span></li>
-            <li><span class="dot"></span><span>Telegram/Discord/X: <strong>coming soon</strong></span></li>
-          </ul>
-        </div>
-      </div>
-
-      <footer>
-        Figyelmeztetés: a kriptovaluták kockázatosak. Ez az oldal kizárólag tájékoztató jellegű,
-        nem befektetési tanács, és nem ígér hozamot.
-      </footer>
-    </section>
-
+  <div class="bg-bubbles">
+    <div class="bubble b1"></div>
+    <div class="bubble b2"></div>
+    <div class="bubble b3"></div>
+    <div class="bubble b4"></div>
   </div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast" role="status" aria-live="polite">
-    <span class="badge" aria-hidden="true"></span>
-    <span id="toastText">Kész.</span>
-  </div>
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand" role="banner">
+          <div class="logo" aria-label="STC logo">
+            <span>STC</span>
+          </div>
+          <div class="brand-title">
+            <strong>StreetCoin</strong>
+            <small data-i18n="tagline_small">Közösségi token</small>
+          </div>
+        </div>
+
+        <nav aria-label="Fő menü">
+          <div class="pill active" data-tab="home" id="tabHome">
+            <span data-i18n="nav_home">Kezdőlap</span>
+          </div>
+          <div class="pill" data-tab="about" id="tabAbout">
+            <span data-i18n="nav_about">Mi a StreetCoin?</span>
+          </div>
+          <div class="pill" data-tab="tech" id="tabTech">
+            <span data-i18n="nav_tech">Technikai adatok</span>
+          </div>
+          <div class="pill" data-tab="feedback" id="tabFeedback">
+            <span data-i18n="nav_feedback">Visszajelzés</span>
+          </div>
+
+          <div class="lang" aria-label="Nyelvválasztó">
+            <button type="button" id="btnHu" class="active" aria-label="Magyar">HU</button>
+            <button type="button" id="btnEn" aria-label="English">EN</button>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+
+      <!-- HERO / HOME TAB -->
+      <section class="hero tab active" id="home">
+        <h1 data-i18n="hero_title">Egyszerű. Átlátható.<br>Közösségi.</h1>
+        <p data-i18n="hero_sub">
+          A StreetCoin (STC) egy közösségi token az Ethereum hálózaton.
+          A cél: tiszta kommunikáció, fokozatos építkezés és átlátható információk — ígéretek és túlzások nélkül.
+        </p>
+
+        <div class="cards">
+          <div class="card">
+            <h3 data-i18n="contract_title">Contract cím</h3>
+
+            <div class="codebox" title="Contract address">
+              <code id="contractText">0x165816f98582b36984ADc5719030869c48dAc9eb</code>
+            </div>
+
+            <div class="actions">
+              <button class="btn" type="button" id="copyContract">
+                <span>📋</span>
+                <span data-i18n="btn_copy">Másolás</span>
+              </button>
+
+              <button class="btn" type="button" id="howAdd">
+                <span>➕</span>
+                <span data-i18n="btn_add_wallet">Token hozzáadás (wallet)</span>
+              </button>
+
+              <button class="btn" type="button" id="openExplorer">
+                <span>🔎</span>
+                <span data-i18n="btn_explorer">Explorer</span>
+              </button>
+            </div>
+
+            <div class="hint" data-i18n="contract_hint">
+              Tipp: ha valahol nem található név alapján, mindig a contract címmel dolgozz.
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="token_title">Token adatok</h3>
+
+            <div class="token-grid">
+              <div class="mini">
+                <strong id="supplyText">1 000 000 000</strong>
+                <span data-i18n="token_supply">Total supply</span>
+              </div>
+              <div class="mini">
+                <strong id="symbolText">STC</strong>
+                <span data-i18n="token_symbol">Symbol</span>
+              </div>
+              <div class="mini">
+                <strong id="standardText">ERC-20</strong>
+                <span data-i18n="token_standard">Standard</span>
+              </div>
+            </div>
+
+            <div class="hint" data-i18n="home_note">
+              Ez az oldal tájékoztató jellegű. Nincs hozamígéret, nincs befektetési ajánlás.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT TAB -->
+      <section class="tab" id="about">
+        <div class="panel">
+          <h2 data-i18n="about_title">Mi a StreetCoin?</h2>
+          <p data-i18n="about_p1">
+            A StreetCoin (STC) egy közösségi token, amelynek célja egy átlátható, egyszerű és követhető kommunikációra épülő közösség.
+          </p>
+          <p data-i18n="about_p2">
+            Itt nincsenek túlzó ígéretek. A fókusz: tiszta információk, közösségi jelenlét és fokozatos építkezés.
+          </p>
+
+          <ul>
+            <li data-i18n="about_li1">Egyszerű, letisztult bemutatás</li>
+            <li data-i18n="about_li2">Átlátható alapadatok (contract, standard, supply)</li>
+            <li data-i18n="about_li3">Közösségi visszajelzések gyűjtése</li>
+            <li data-i18n="about_li4">Fokozatos fejlesztés, lépésről lépésre</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TECH TAB -->
+      <section class="tab" id="tech">
+        <div class="panel">
+          <h2 data-i18n="tech_title">Technikai adatok</h2>
+
+          <p data-i18n="tech_p1">
+            Itt találod a token legfontosabb technikai információit. (Ha később több adat kell, bővítjük.)
+          </p>
+
+          <ul>
+            <li><strong data-i18n="tech_contract_label">Contract:</strong> <span id="contractTextTech">0x165816f98582b36984ADc5719030869c48dAc9eb</span></li>
+            <li><strong data-i18n="tech_network_label">Hálózat:</strong> <span data-i18n="tech_network_value">Ethereum</span></li>
+            <li><strong data-i18n="tech_standard_label">Standard:</strong> <span id="standardTextTech">ERC-20</span></li>
+            <li><strong data-i18n="tech_symbol_label">Symbol:</strong> <span id="symbolTextTech">STC</span></li>
+            <li><strong data-i18n="tech_supply_label">Total supply:</strong> <span id="supplyTextTech">1 000 000 000</span></li>
+          </ul>
+
+          <div class="actions" style="margin-top: 14px;">
+            <button class="btn" type="button" id="copyContractTech">
+              <span>📋</span>
+              <span data-i18n="btn_copy_contract">Contract másolása</span>
+            </button>
+            <button class="btn" type="button" id="openExplorerTech">
+              <span>🔎</span>
+              <span data-i18n="btn_open_explorer">Megnyitás explorerben</span>
+            </button>
+          </div>
+
+          <div class="hint" data-i18n="tech_hint">
+            Ha szeretnéd, ide tehetünk később: decimals, token name, explorer link, DEX link, stb.
+          </div>
+        </div>
+      </section>
+
+      <!-- FEEDBACK TAB -->
+      <section class="tab" id="feedback">
+        <div class="panel">
+          <h2 data-i18n="fb_title">Visszajelzés</h2>
+          <p data-i18n="fb_p1">
+            Írj visszajelzést vagy ötletet. A gombbal megnyitjuk a Gmailt egy előre kitöltött üzenettel.
+          </p>
+
+          <div class="formRow">
+            <div class="field">
+              <label for="name" data-i18n="fb_name">Név</label>
+              <input id="name" type="text" placeholder="Attila" />
+            </div>
+
+            <div class="field">
+              <label for="email" data-i18n="fb_email">Email</label>
+              <input id="email" type="email" placeholder="pelda@email.com" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top: 12px;">
+            <label for="msg" data-i18n="fb_msg">Üzenet</label>
+            <textarea id="msg" placeholder="Írd ide a visszajelzésed..."></textarea>
+          </div>
+
+          <div class="actions" style="margin-top: 12px;">
+            <button class="btn" type="button" id="openGmail">
+              <span>✉️</span>
+              <span data-i18n="fb_open_gmail">Gmail megnyitása</span>
+            </button>
+
+            <button class="btn" type="button" id="copyEmail">
+              <span>📋</span>
+              <span data-i18n="fb_copy_email">Email cím másolása</span>
+            </button>
+          </div>
+
+          <div class="hint">
+            <span data-i18n="fb_contact_label">Kapcsolat:</span>
+            <strong id="emailText">streetcoin.project@gmail.com</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ✅ FIGYELMEZTETÉS: KÖZÖSEN, MINDEN FÜL ALATT -->
+      <div class="disclaimer" data-i18n="footer_disclaimer">
+        Figyelmeztetés: a kriptoeszközök kockázatosak. Ez az oldal kizárólag tájékoztató jellegű,
+        nem befektetési tanács, és nem ígér hozamot.
+      </div>
+
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    // ====== TOKEN / LINK ADATOK (itt cseréled, ha kell) ======
     const TOKEN = {
-      address: "0x165816f98582b36984ADc5719030869c48dAc9eb",
-      email: "streetcoin.stc@gmail.com",
-      explorerUrl: "https://etherscan.io/token/0x165816f98582b36984ADc5719030869c48dAc9eb",
-      gmailCompose: ""
+      contract: "0x165816f98582b36984ADc5719030869c48dAc9eb",
+      symbol: "STC",
+      standard: "ERC-20",
+      supply: "1 000 000 000",
+      explorerUrl: "https://etherscan.io/address/0x165816f98582b36984ADc5719030869c48dAc9eb",
+      email: "streetcoin.project@gmail.com"
     };
 
-    // ===== Toast =====
-    const toast = document.getElementById('toast');
-    const toastText = document.getElementById('toastText');
-    let toastTimer = null;
+    // ====== SZÖVEGEK (HU / EN) ======
+    const I18N = {
+      hu: {
+        tagline_small: "Közösségi token",
 
-    function showToast(msg){
-      toastText.textContent = msg;
-      toast.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+        nav_home: "Kezdőlap",
+        nav_about: "Mi a StreetCoin?",
+        nav_tech: "Technikai adatok",
+        nav_feedback: "Visszajelzés",
+
+        hero_title: "Egyszerű. Átlátható.<br>Közösségi.",
+        hero_sub: "A StreetCoin (STC) egy közösségi token az Ethereum hálózaton. A cél: tiszta kommunikáció, fokozatos építkezés és átlátható információk — ígéretek és túlzások nélkül.",
+
+        contract_title: "Contract cím",
+        btn_copy: "Másolás",
+        btn_add_wallet: "Token hozzáadás (wallet)",
+        btn_explorer: "Explorer",
+        contract_hint: "Tipp: ha valahol nem található név alapján, mindig a contract címmel dolgozz.",
+
+        token_title: "Token adatok",
+        token_supply: "Total supply",
+        token_symbol: "Symbol",
+        token_standard: "Standard",
+        home_note: "Ez az oldal tájékoztató jellegű. Nincs hozamígéret, nincs befektetési ajánlás.",
+
+        footer_disclaimer: "Figyelmeztetés: a kriptoeszközök kockázatosak. Ez az oldal kizárólag tájékoztató jellegű, nem befektetési tanács, és nem ígér hozamot.",
+
+        about_title: "Mi a StreetCoin?",
+        about_p1: "A StreetCoin (STC) egy közösségi token, amelynek célja egy átlátható, egyszerű és követhető kommunikációra épülő közösség.",
+        about_p2: "Itt nincsenek túlzó ígéretek. A fókusz: tiszta információk, közösségi jelenlét és fokozatos építkezés.",
+        about_li1: "Egyszerű, letisztult bemutatás",
+        about_li2: "Átlátható alapadatok (contract, standard, supply)",
+        about_li3: "Közösségi visszajelzések gyűjtése",
+        about_li4: "Fokozatos fejlesztés, lépésről lépésre",
+
+        tech_title: "Technikai adatok",
+        tech_p1: "Itt találod a token legfontosabb technikai információit. (Ha később több adat kell, bővítjük.)",
+        tech_contract_label: "Contract:",
+        tech_network_label: "Hálózat:",
+        tech_network_value: "Ethereum",
+        tech_standard_label: "Standard:",
+        tech_symbol_label: "Symbol:",
+        tech_supply_label: "Total supply:",
+        btn_copy_contract: "Contract másolása",
+        btn_open_explorer: "Megnyitás explorerben",
+        tech_hint: "Ha szeretnéd, ide tehetünk később: decimals, token name, explorer link, DEX link, stb.",
+
+        fb_title: "Visszajelzés",
+        fb_p1: "Írj visszajelzést vagy ötletet. A gombbal megnyitjuk a Gmailt egy előre kitöltött üzenettel.",
+        fb_name: "Név",
+        fb_email: "Email",
+        fb_msg: "Üzenet",
+        fb_open_gmail: "Gmail megnyitása",
+        fb_copy_email: "Email cím másolása",
+        fb_contact_label: "Kapcsolat:",
+
+        toast_copied: "Másolva ✅",
+        toast_contract_copied: "Contract cím másolva ✅",
+        toast_email_copied: "Email cím másolva ✅",
+        toast_opening_explorer: "Explorer megnyitása…",
+        toast_opening_gmail: "Gmail megnyitása…",
+        toast_wallet_tip: "Nézd a Technikai adatok fület ✅"
+      },
+
+      en: {
+        tagline_small: "Community token",
+
+        nav_home: "Home",
+        nav_about: "What is StreetCoin?",
+        nav_tech: "Technical data",
+        nav_feedback: "Feedback",
+
+        hero_title: "Simple. Transparent.<br>Community.",
+        hero_sub: "StreetCoin (STC) is a community token on the Ethereum network. The goal: clear communication, gradual building, and transparent information — without exaggerated promises.",
+
+        contract_title: "Contract address",
+        btn_copy: "Copy",
+        btn_add_wallet: "Add token (wallet)",
+        btn_explorer: "Explorer",
+        contract_hint: "Tip: if you can’t find it by name somewhere, always use the contract address.",
+
+        token_title: "Token details",
+        token_supply: "Total supply",
+        token_symbol: "Symbol",
+        token_standard: "Standard",
+        home_note: "This page is for informational purposes only. No profit promises, no investment advice.",
+
+        footer_disclaimer: "Warning: crypto assets are risky. This page is for informational purposes only, not investment advice, and it does not promise returns.",
+
+        about_title: "What is StreetCoin?",
+        about_p1: "StreetCoin (STC) is a community token focused on transparent, simple, and easy-to-follow communication.",
+        about_p2: "No exaggerated promises here. The focus is: clear information, community presence, and gradual building step by step.",
+        about_li1: "Simple, clean presentation",
+        about_li2: "Transparent key data (contract, standard, supply)",
+        about_li3: "Collecting community feedback",
+        about_li4: "Gradual development, step by step",
+
+        tech_title: "Technical data",
+        tech_p1: "Here you can find the most important technical info of the token. (We can extend this later.)",
+        tech_contract_label: "Contract:",
+        tech_network_label: "Network:",
+        tech_network_value: "Ethereum",
+        tech_standard_label: "Standard:",
+        tech_symbol_label: "Symbol:",
+        tech_supply_label: "Total supply:",
+        btn_copy_contract: "Copy contract",
+        btn_open_explorer: "Open in explorer",
+        tech_hint: "If you want, we can add later: decimals, token name, explorer link, DEX link, etc.",
+
+        fb_title: "Feedback",
+        fb_p1: "Send feedback or an idea. The button opens Gmail with a pre-filled message.",
+        fb_name: "Name",
+        fb_email: "Email",
+        fb_msg: "Message",
+        fb_open_gmail: "Open Gmail",
+        fb_copy_email: "Copy email address",
+        fb_contact_label: "Contact:",
+
+        toast_copied: "Copied ✅",
+        toast_contract_copied: "Contract copied ✅",
+        toast_email_copied: "Email copied ✅",
+        toast_opening_explorer: "Opening explorer…",
+        toast_opening_gmail: "Opening Gmail…",
+        toast_wallet_tip: "Check the Technical data tab ✅"
+      }
+    };
+
+    // ====== ELEMEK FELTÖLTÉSE TOKEN ADATOKKAL ======
+    const contractText = document.getElementById("contractText");
+    const contractTextTech = document.getElementById("contractTextTech");
+
+    const supplyText = document.getElementById("supplyText");
+    const supplyTextTech = document.getElementById("supplyTextTech");
+
+    const symbolText = document.getElementById("symbolText");
+    const symbolTextTech = document.getElementById("symbolTextTech");
+
+    const standardText = document.getElementById("standardText");
+    const standardTextTech = document.getElementById("standardTextTech");
+
+    const emailText = document.getElementById("emailText");
+
+    contractText.textContent = TOKEN.contract;
+    contractTextTech.textContent = TOKEN.contract;
+
+    supplyText.textContent = TOKEN.supply;
+    supplyTextTech.textContent = TOKEN.supply;
+
+    symbolText.textContent = TOKEN.symbol;
+    symbolTextTech.textContent = TOKEN.symbol;
+
+    standardText.textContent = TOKEN.standard;
+    standardTextTech.textContent = TOKEN.standard;
+
+    emailText.textContent = TOKEN.email;
+
+    // ====== TAB VÁLTÁS ======
+    const tabButtons = document.querySelectorAll("[data-tab]");
+    const tabs = document.querySelectorAll(".tab");
+
+    function openTab(tabName){
+      tabs.forEach(t => t.classList.toggle("active", t.id === tabName));
+      tabButtons.forEach(b => b.classList.toggle("active", b.getAttribute("data-tab") === tabName));
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    async function copyText(text, okMsg){
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => openTab(btn.getAttribute("data-tab")));
+    });
+
+    // ====== TOAST ======
+    const toastEl = document.getElementById("toast");
+    let toastTimer = null;
+
+    function showToast(message){
+      toastEl.textContent = message;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+    }
+
+    // ====== MÁSOLÁS ======
+    async function copyText(text, okMessage){
       try{
         await navigator.clipboard.writeText(text);
-        showToast(okMsg);
-      }catch{
-        prompt("Másold ki innen:", text);
+        showToast(okMessage);
+      }catch(e){
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast(okMessage);
       }
     }
 
-    // ===== Tabs =====
-    const tabs = document.querySelectorAll('.tab');
-    const sections = document.querySelectorAll('.section');
+    // ====== NYELV VÁLTÁS ======
+    let currentLang = "hu";
 
-    function openTab(id){
-      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === id));
-      sections.forEach(s => s.classList.toggle('active', s.id === id));
-      window.scrollTo({top:0, behavior:'smooth'});
+    function applyI18n(lang){
+      currentLang = lang;
+
+      document.getElementById("btnHu").classList.toggle("active", lang === "hu");
+      document.getElementById("btnEn").classList.toggle("active", lang === "en");
+
+      const dict = I18N[lang];
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (!dict[key]) return;
+
+        // engedjük a <br>-t a hero címben
+        if (key === "hero_title"){
+          el.innerHTML = dict[key];
+        }else{
+          el.textContent = dict[key];
+        }
+      });
     }
-    tabs.forEach(t => t.addEventListener('click', () => openTab(t.dataset.tab)));
 
-    // ===== Contract kitöltés + másolás =====
-    const c1 = document.getElementById('contract');
-    const c2 = document.getElementById('contract2');
-    if (c1) c1.textContent = TOKEN.address;
-    if (c2) c2.textContent = TOKEN.address;
+    document.getElementById("btnHu").addEventListener("click", () => applyI18n("hu"));
+    document.getElementById("btnEn").addEventListener("click", () => applyI18n("en"));
 
-    document.getElementById('copyContract')?.addEventListener('click', () =>
-      copyText(TOKEN.address, "Contract cím másolva ✅")
-    );
-    document.getElementById('copyContract2')?.addEventListener('click', () =>
-      copyText(TOKEN.address, "Contract cím másolva ✅")
-    );
+    applyI18n("hu");
 
-    // ===== Explorer =====
-    document.getElementById('openExplorer')?.addEventListener('click', () => {
+    // ====== GOMBOK / FUNKCIÓK ======
+    document.getElementById("copyContract").addEventListener("click", () => {
+      copyText(TOKEN.contract, I18N[currentLang].toast_contract_copied);
+    });
+
+    document.getElementById("copyContractTech").addEventListener("click", () => {
+      copyText(TOKEN.contract, I18N[currentLang].toast_contract_copied);
+    });
+
+    document.getElementById("openExplorer").addEventListener("click", () => {
+      showToast(I18N[currentLang].toast_opening_explorer);
       window.open(TOKEN.explorerUrl, "_blank", "noopener");
     });
 
-    // ===== Token hozzáadás (wallet): tech fül =====
-    document.getElementById('howAdd')?.addEventListener('click', () => {
-      showToast("Nézd a Technikai adatok fület ✅");
-      openTab('tech');
+    document.getElementById("openExplorerTech").addEventListener("click", () => {
+      showToast(I18N[currentLang].toast_opening_explorer);
+      window.open(TOKEN.explorerUrl, "_blank", "noopener");
     });
 
-    // ===== Email megjelenítés + GMAIL link =====
-    const emailText = document.getElementById('emailText');
-    const emailTextTech = document.getElementById('emailTextTech');
-    if (emailText) emailText.textContent = TOKEN.email;
-    if (emailTextTech) emailTextTech.textContent = TOKEN.email;
+    // Token hozzáadás (wallet) — egyszerű: átdob a Tech fülre (később lehet MetaMask guide)
+    document.getElementById("howAdd").addEventListener("click", () => {
+      showToast(I18N[currentLang].toast_wallet_tip);
+      openTab("tech");
+    });
 
-    TOKEN.gmailCompose =
-      "https://mail.google.com/mail/?view=cm&fs=1" +
-      "&to=" + encodeURIComponent(TOKEN.email) +
-      "&su=" + encodeURIComponent("StreetCoin – visszajelzés") +
-      "&body=" + encodeURIComponent("Szia!\n\nVisszajelzésem / ötletem:\n");
+    // Gmail megnyitás előre kitöltve
+    document.getElementById("openGmail").addEventListener("click", () => {
+      const name = (document.getElementById("name").value || "").trim();
+      const email = (document.getElementById("email").value || "").trim();
+      const msg = (document.getElementById("msg").value || "").trim();
 
-    const gmailLink = document.getElementById('gmailLink');
-    if (gmailLink) gmailLink.href = TOKEN.gmailCompose;
+      const subject = "StreetCoin – feedback";
+      const body =
+        "Szia!\n\n" +
+        (name ? ("Név: " + name + "\n") : "") +
+        (email ? ("Email: " + email + "\n") : "") +
+        "\nÜzenet:\n" +
+        (msg ? msg : "(ide írd az üzenetet)") +
+        "\n\n—";
 
-    document.getElementById('copyEmail')?.addEventListener('click', () =>
-      copyText(TOKEN.email, "Email cím másolva ✅")
-    );
-    document.getElementById('copyEmailTech')?.addEventListener('click', () =>
-      copyText(TOKEN.email, "Email cím másolva ✅")
-    );
+      const gmailCompose =
+        "https://mail.google.com/mail/?view=cm&fs=1" +
+        "&to=" + encodeURIComponent(TOKEN.email) +
+        "&su=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+
+      showToast(I18N[currentLang].toast_opening_gmail);
+      window.open(gmailCompose, "_blank", "noopener");
+    });
+
+    document.getElementById("copyEmail").addEventListener("click", () => {
+      copyText(TOKEN.email, I18N[currentLang].toast_email_copied);
+    });
+
   </script>
 </body>
 </html>
