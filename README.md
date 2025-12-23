@@ -1,43 +1,27 @@
 # StreetCoin (STC)
 
-StreetCoin (STC) is a community-focused ERC-20 token built on the Ethereum blockchain.  
-The project is designed to support grassroots participation, transparent distribution, and simple, fair mechanics driven by community involvement.
+StreetCoin (STC) is a community-driven ERC-20 token created for educational experiments, open-source learning, and transparent community building.
 
-## Overview
+## About
+StreetCoin is a small ERC-20 project designed to explore how token projects work in practice.
+The focus is on learning, experimentation, and open development rather than profit or speculation.
 
-- **Token Name:** StreetCoin
-- **Symbol:** STC
-- **Blockchain:** Ethereum
-- **Standard:** ERC-20
-- **Project Type:** Community / Utility
-- **Launch Method:** Fair launch via decentralized liquidity
+- Community-driven
+- Open-source development
+- No investment promise
+- No financial guarantees
+- No marketing hype
 
-## Vision
-
-StreetCoin aims to create an open and accessible community token where participation is not limited by centralized control.  
-The project prioritizes transparency, simplicity, and long-term sustainability.
-
-## Token Utility
-
-STC is intended for:
-- Community engagement
-- Experimental decentralized applications
-- Educational and learning purposes
-- Future on-chain utilities defined by the community
+## Purpose
+The goal of StreetCoin is to provide a simple, transparent example of:
+- ERC-20 token structure
+- Community-based project organization
+- Open documentation and learning
 
 ## Transparency
+All development activity is published openly.
+There is no promise of profit and no investment offering.
 
-- The smart contract is publicly deployed and verifiable on Ethereum.
-- No hidden minting or private allocations.
-- Liquidity interactions are executed via decentralized exchanges.
-
-## Official Links
-
-- **Website:** https://atkesz.github.io/streetcoin/
-- **GitHub:** https://github.com/Atkesz/streetcoin
-- **Contact Email:** streetcoin.contact@gmail.com
-
-## Disclaimer
-
-StreetCoin (STC) is an experimental community project.  
-It does not represent financial advice, investment solicitation, or guaranteed value.
+## Links
+- Website: https://atkesz.github.io/streetcoin/
+- GitHub: https://github.com/Atkesz/streetcoin
