@@ -25,4 +25,6 @@ There is no promise of profit and no investment offering.
 ## Links
 - Website: https://atkesz.github.io/streetcoin/
 - GitHub: https://github.com/Atkesz/streetcoin
+
+## Kapcsolat 
 - Email: streetcoin.stc@gmail.com
