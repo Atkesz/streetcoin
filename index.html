@@ -7,7 +7,8 @@
 
   <style>
     :root{
-      --edge-pad: clamp(44px, 3.6vw, 84px);
+      /* MOBILON ne legyen 44px minimum, mert kilóg a fejléc */
+      --edge-pad: clamp(14px, 3.2vw, 84px);
       --maxw: 1100px;
 
       --bg1: #2b5c9a;
@@ -31,7 +32,10 @@
       --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
     }
 
+    /* ====== FONTOS: nincs oldalirányú csúszás ====== */
+    html, body { max-width: 100%; overflow-x: hidden; }
     *{ box-sizing: border-box; }
+
     html,body{ height: 100%; }
     body{
       margin: 0;
@@ -81,15 +85,17 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
       padding: 14px 0;
+      min-width: 0;
     }
 
     .brand{
       display: flex;
       align-items: center;
       gap: 10px;
-      min-width: 220px;
+      min-width: 0;
+      flex: 1 1 auto;
     }
 
     .logo{
@@ -114,24 +120,32 @@
       display: flex;
       flex-direction: column;
       line-height: 1.1;
+      min-width: 0;
     }
     .brand-title strong{
       font-size: 14px;
       letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 46vw;
     }
     .brand-title small{
       font-size: 12px;
       color: var(--muted);
       margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 46vw;
     }
 
-    nav{
-      display: flex;
+    /* ====== JOBB OLDALI VEZÉRLŐK: Menü + Nyelv ====== */
+    .rightControls{
+      display: inline-flex;
       align-items: center;
-      justify-content: flex-end;
       gap: 10px;
-      flex-wrap: wrap;
-      position: relative;
+      flex: 0 0 auto;
     }
 
     .pill{
@@ -147,15 +161,12 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
     }
     .pill:hover{
       transform: translateY(-1px);
       background: rgba(0,0,0,0.25);
       border-color: rgba(255,255,255,0.20);
-    }
-    .pill.active{
-      background: rgba(255,255,255,0.18);
-      border-color: rgba(255,255,255,0.28);
     }
 
     .lang{
@@ -163,7 +174,7 @@
       border: 1px solid rgba(255,255,255,0.16);
       border-radius: 999px;
       overflow: hidden;
-      margin-left: 8px;
+      flex: 0 0 auto;
     }
     .lang button{
       border: 0;
@@ -176,6 +187,54 @@
     .lang button.active{
       background: rgba(255,255,255,0.18);
     }
+
+    /* ====== HAMBURGER MENÜ PANEL ====== */
+    .menuPanel{
+      position: fixed;
+      top: 72px; /* kb. header magasság */
+      right: 12px;
+      left: auto;
+      width: min(420px, calc(100vw - 24px)); /* EZ oldja meg a kilógást */
+      background: rgba(10, 20, 35, 0.70);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 10px;
+      z-index: 60;
+
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease;
+      overflow: hidden;
+    }
+    .menuPanel.open{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .menuItem{
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      cursor: pointer;
+      color: var(--text);
+      font-size: 14px;
+      transition: transform 120ms ease, background 160ms ease, border-color 160ms ease;
+    }
+    .menuItem:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.18);
+    }
+    .menuItem .arrow{ opacity: 0.75; }
 
     main{ padding: 26px 0 70px; }
 
@@ -233,6 +292,7 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 12px;
       overflow: hidden;
+      min-width: 0;
     }
     .codebox code{
       white-space: nowrap;
@@ -241,6 +301,7 @@
       display: inline-block;
       max-width: 100%;
       opacity: 0.95;
+      min-width: 0;
     }
 
     .actions{
@@ -290,6 +351,7 @@
       border-radius: 14px;
       padding: 12px;
       text-align: center;
+      min-width: 0;
     }
     .mini strong{
       display: block;
@@ -345,6 +407,12 @@
     }
     .panel li{ margin: 6px 0; }
 
+    /* TECH: hosszú szöveg tördelése (contract cím) */
+    #tech, #tech *{
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
     .formRow{
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -383,6 +451,7 @@
       transition: opacity 180ms ease, transform 180ms ease;
       max-width: min(560px, calc(100vw - 36px));
       text-align: center;
+      z-index: 80;
     }
     .toast.show{
       opacity: 1;
@@ -504,84 +573,17 @@
     }
     .walletRight{ opacity: 0.75; font-size: 12px; }
 
-    /* ===== HAMBURGER MENU (NEW) ===== */
-    .navRight{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    .menuWrap{ position: relative; }
-
-    .burger{
-      border: 1px solid var(--stroke);
-      background: rgba(0,0,0,0.18);
-      color: var(--text);
-      padding: 9px 12px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-      user-select:none;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      transition: transform 120ms ease, background 160ms ease, border-color 160ms ease;
-    }
-    .burger:hover{
-      transform: translateY(-1px);
-      background: rgba(0,0,0,0.25);
-      border-color: rgba(255,255,255,0.20);
-    }
-
-    .menuPanel{
-      position: absolute;
-      top: calc(100% + 10px);
-      right: 0;
-      width: min(360px, calc(100vw - 28px));
-      background: rgba(10,20,35,0.72);
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: 10px;
-      display: none;
-      backdrop-filter: blur(10px);
-    }
-    .menuPanel.open{ display:block; }
-
-    .menuItem{
-      width: 100%;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: left;
-      font-size: 13px;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      transition: transform 120ms ease, background 160ms ease, border-color 160ms ease;
-      margin: 6px 0;
-    }
-    .menuItem:hover{
-      transform: translateY(-1px);
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.18);
-    }
-
-    /* elrejtjük a régi pille menüt */
-    nav .pill{ display:none !important; }
-
     @media (max-width: 980px){
       .cards{ grid-template-columns: 1fr; }
-      .brand{ min-width: 180px; }
     }
     @media (max-width: 820px){
       .grid2{ grid-template-columns: 1fr; }
     }
     @media (max-width: 640px){
       .formRow{ grid-template-columns: 1fr; }
-      nav{ gap: 8px; }
+      .pill{ padding: 9px 10px; }
+      .brand-title strong, .brand-title small { max-width: 52vw; }
+      .menuPanel{ top: 66px; }
     }
   </style>
 </head>
@@ -605,45 +607,29 @@
           </div>
         </div>
 
-        <nav aria-label="Fő menü">
-          <!-- HAMBURGER + LANGUAGE (RIGHT SIDE) -->
-          <div class="navRight">
-            <div class="menuWrap">
-              <button class="burger" id="burgerBtn" type="button" aria-expanded="false">
-                <span>☰</span><span data-i18n="nav_menu">Menü</span>
-              </button>
+        <div class="rightControls">
+          <button class="pill" type="button" id="menuBtn" aria-expanded="false">
+            <span>☰</span><span data-i18n="menu_label">Menü</span>
+          </button>
 
-              <div class="menuPanel" id="menuPanel" role="menu" aria-label="Menü">
-                <button class="menuItem" type="button" data-tab="home">
-                  <span data-i18n="nav_home">Kezdőlap</span><span>→</span>
-                </button>
-                <button class="menuItem" type="button" data-tab="about">
-                  <span data-i18n="nav_about">Mi a StreetCoin?</span><span>→</span>
-                </button>
-                <button class="menuItem" type="button" data-tab="web3">
-                  <span data-i18n="nav_web3">Web3 alapok</span><span>→</span>
-                </button>
-                <button class="menuItem" type="button" data-tab="roadmap">
-                  <span data-i18n="nav_roadmap">Roadmap / Állapot</span><span>→</span>
-                </button>
-                <button class="menuItem" type="button" data-tab="tech">
-                  <span data-i18n="nav_tech">Technikai adatok</span><span>→</span>
-                </button>
-                <button class="menuItem" type="button" data-tab="feedback">
-                  <span data-i18n="nav_feedback">Visszajelzés</span><span>→</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="lang" aria-label="Nyelvválasztó">
-              <button type="button" id="btnHu" class="active" aria-label="Magyar">HU</button>
-              <button type="button" id="btnEn" aria-label="English">EN</button>
-            </div>
+          <div class="lang" aria-label="Nyelvválasztó">
+            <button type="button" id="btnHu" class="active" aria-label="Magyar">HU</button>
+            <button type="button" id="btnEn" aria-label="English">EN</button>
           </div>
-        </nav>
+        </div>
       </div>
     </div>
   </header>
+
+  <!-- LENYÍLÓ MENÜ PANEL -->
+  <div class="menuPanel" id="menuPanel" role="menu" aria-label="Menü">
+    <div class="menuItem" data-tab="home"><span data-i18n="nav_home">Kezdőlap</span><span class="arrow">→</span></div>
+    <div class="menuItem" data-tab="about"><span data-i18n="nav_about">Mi a StreetCoin?</span><span class="arrow">→</span></div>
+    <div class="menuItem" data-tab="web3"><span data-i18n="nav_web3">Web3 alapok</span><span class="arrow">→</span></div>
+    <div class="menuItem" data-tab="roadmap"><span data-i18n="nav_roadmap">Roadmap / Állapot</span><span class="arrow">→</span></div>
+    <div class="menuItem" data-tab="tech"><span data-i18n="nav_tech">Technikai adatok</span><span class="arrow">→</span></div>
+    <div class="menuItem" data-tab="feedback"><span data-i18n="nav_feedback">Visszajelzés</span><span class="arrow">→</span></div>
+  </div>
 
   <main>
     <div class="wrap">
@@ -760,14 +746,14 @@
           <h2 data-i18n="web3_title">Web3 alapok – érthetően</h2>
           <p data-i18n="web3_intro">Ez a rész kezdőknek készült. Nem befektetési tanács, hanem alapfogalmak: mi micsoda, mire figyelj, és hogyan ellenőrizd az információkat.</p>
           <div class="grid2">
-            <div class="subpanel reveal" data-delay="2"><h3 data-i18n="web3_q1_title">1) Mi az a „token”?</h3><p data-i18n="web3_q1_text">A token egy digitális egység a blokkláncon. Nem „érme a zsebedben”, hanem egy okosszerződés (smart contract) által kezelt nyilvántartás.</p></div>
-            <div class="subpanel reveal" data-delay="3"><h3 data-i18n="web3_q2_title">2) Mi az a hálózat (Ethereum)?</h3><p data-i18n="web3_q2_text">Az Ethereum egy blokklánc-hálózat. Itt futnak az okosszerződések (ERC-20 tokenek is). A műveletekhez hálózati díj (gas fee) fizetendő.</p></div>
-            <div class="subpanel reveal" data-delay="2"><h3 data-i18n="web3_q3_title">3) Mi az a wallet (tárca)?</h3><p data-i18n="web3_q3_text">A wallet egy kulcskezelő felület. Nem „a tokeneket tárolja”, hanem a privát kulccsal igazolja, hogy te rendelkezel az adott cím felett.</p></div>
-            <div class="subpanel reveal" data-delay="3"><h3 data-i18n="web3_q4_title">4) Mi az a contract cím?</h3><p data-i18n="web3_q4_text">A contract cím olyan, mint egy hivatalos azonosító. Ha valamit nem találsz név alapján, a contract címmel tudod 100%-ban azonosítani.</p></div>
+            <div class="subpanel reveal" data-delay="2"><h3 data-i18n="web3_q1_title">1) Mi az a „token”?</h3><p data-i18n="web3_q1_text">A token egy digitális egység a blokkláncon...</p></div>
+            <div class="subpanel reveal" data-delay="3"><h3 data-i18n="web3_q2_title">2) Mi az a hálózat (Ethereum)?</h3><p data-i18n="web3_q2_text">Az Ethereum egy blokklánc-hálózat...</p></div>
+            <div class="subpanel reveal" data-delay="2"><h3 data-i18n="web3_q3_title">3) Mi az a wallet (tárca)?</h3><p data-i18n="web3_q3_text">A wallet egy kulcskezelő felület...</p></div>
+            <div class="subpanel reveal" data-delay="3"><h3 data-i18n="web3_q4_title">4) Mi az a contract cím?</h3><p data-i18n="web3_q4_text">A contract cím olyan, mint egy hivatalos azonosító...</p></div>
           </div>
           <div class="subpanel">
             <h3 data-i18n="web3_security_title">Biztonság</h3>
-            <p data-i18n="web3_security_text">Ne add ki a seed phrase-t / privát kulcsot senkinek. A hivatalos csatorna soha nem kéri el. Ha valaki kéri, az átverés.</p>
+            <p data-i18n="web3_security_text">Ne add ki a seed phrase-t / privát kulcsot senkinek...</p>
           </div>
         </div>
       </section>
@@ -776,7 +762,7 @@
       <section class="tab" id="roadmap">
         <div class="panel reveal" data-delay="2">
           <h2 data-i18n="roadmap_title">Roadmap / Állapot</h2>
-          <p data-i18n="roadmap_intro">Ez az oldal a projekt állapotát és a következő lépéseket mutatja. Nincs hozamígéret, nincs árfolyamígéret — csak feladatok és állapotok.</p>
+          <p data-i18n="roadmap_intro">Ez az oldal a projekt állapotát és a következő lépéseket mutatja...</p>
           <div class="statusRow">
             <div class="statusCard reveal" data-delay="2">
               <div class="badge" data-i18n="roadmap_badge_done">Állapot: kész</div>
@@ -790,7 +776,7 @@
 
             <div class="subpanel reveal" data-delay="3">
               <h3 data-i18n="roadmap_note_title">Megjegyzés</h3>
-              <p data-i18n="roadmap_note_text">A roadmap változhat. A cél átlátható fejlesztés és érthető tájékoztatás. Ha van javaslatod, írd meg a Visszajelzés fülön.</p>
+              <p data-i18n="roadmap_note_text">A roadmap változhat...</p>
               <div class="actions" style="margin-top:12px;">
                 <button class="btn" type="button" id="jumpFeedback"><span>↪</span><span data-i18n="btn_jump_feedback">Ugrás Visszajelzés</span></button>
               </div>
@@ -803,7 +789,7 @@
       <section class="tab" id="tech">
         <div class="panel reveal" data-delay="2">
           <h2 data-i18n="tech_title">Technikai adatok</h2>
-          <p data-i18n="tech_p1">Itt találod a token legfontosabb technikai információit. (Ha később több adat kell, bővítjük.)</p>
+          <p data-i18n="tech_p1">Itt találod a token legfontosabb technikai információit...</p>
           <ul>
             <li><strong data-i18n="tech_contract_label">Contract:</strong> <span id="contractTextTech"></span></li>
             <li><strong data-i18n="tech_network_label">Hálózat:</strong> <span data-i18n="tech_network_value">Ethereum</span></li>
@@ -815,7 +801,7 @@
             <button class="btn" type="button" id="copyContractTech"><span>📋</span><span data-i18n="btn_copy_contract">Contract másolása</span></button>
             <button class="btn" type="button" id="openExplorerTech"><span>🔎</span><span data-i18n="btn_open_explorer">Megnyitás explorerben</span></button>
           </div>
-          <div class="hint" data-i18n="tech_hint">Ha szeretnéd, ide tehetünk később: decimals, token name, explorer link, DEX link, stb.</div>
+          <div class="hint" data-i18n="tech_hint">Ha szeretnéd, ide tehetünk később...</div>
         </div>
       </section>
 
@@ -823,7 +809,7 @@
       <section class="tab" id="feedback">
         <div class="panel reveal" data-delay="2">
           <h2 data-i18n="fb_title">Visszajelzés</h2>
-          <p data-i18n="fb_p1">Írj visszajelzést vagy ötletet. A gombbal megnyitjuk a Gmailt egy előre kitöltött üzenettel.</p>
+          <p data-i18n="fb_p1">Írj visszajelzést vagy ötletet...</p>
 
           <div class="formRow">
             <div class="field">
@@ -875,8 +861,8 @@
 
     const I18N = {
       hu: {
-        nav_menu: "Menü",
         tagline_small: "Közösségi token",
+        menu_label: "Menü",
         nav_home: "Kezdőlap",
         nav_about: "Mi a StreetCoin?",
         nav_web3: "Web3 alapok",
@@ -960,11 +946,13 @@
         toast_opening_gmail: "Gmail megnyitása…",
         toast_wallet_open: "Wallet lista megnyitva ✅",
         toast_wallet_close: "Wallet lista bezárva ✅",
-        toast_jump_feedback: "Ugrás: Visszajelzés…"
+        toast_jump_feedback: "Ugrás: Visszajelzés…",
+        toast_menu_open: "Menü megnyitva ✅",
+        toast_menu_close: "Menü bezárva ✅"
       },
       en: {
-        nav_menu: "Menu",
         tagline_small: "Community token",
+        menu_label: "Menu",
         nav_home: "Home",
         nav_about: "What is StreetCoin?",
         nav_web3: "Web3 basics",
@@ -1048,7 +1036,9 @@
         toast_opening_gmail: "Opening Gmail…",
         toast_wallet_open: "Wallet list opened ✅",
         toast_wallet_close: "Wallet list closed ✅",
-        toast_jump_feedback: "Jumping: Feedback…"
+        toast_jump_feedback: "Jumping: Feedback…",
+        toast_menu_open: "Menu opened ✅",
+        toast_menu_close: "Menu closed ✅"
       }
     };
 
@@ -1106,87 +1096,101 @@
     document.getElementById("standardTextTech").textContent = TOKEN.standard;
     document.getElementById("emailText").textContent = TOKEN.email;
 
-    // ====== REVEAL (tabváltásnál újraindul) ======
+    // ====== REVEAL (mindig újraindul tabváltásnál) ======
     const tabs = document.querySelectorAll(".tab");
+    const tabButtons = document.querySelectorAll("[data-tab]");
 
     function resetAllReveals(){
       tabs.forEach(t => {
         t.querySelectorAll(".reveal").forEach(el => el.classList.remove("in"));
       });
     }
-
     function replayTabAnimations(tabName){
       const tabEl = document.getElementById(tabName);
       if (!tabEl) return;
+
       const targets = tabEl.querySelectorAll(".reveal");
       targets.forEach(el => {
         el.style.transition = "none";
         el.classList.remove("in");
       });
+
       void tabEl.offsetHeight;
-      targets.forEach(el => { el.style.transition = ""; });
+
+      targets.forEach(el => el.style.transition = "");
       requestAnimationFrame(() => targets.forEach(el => el.classList.add("in")));
     }
 
     function openTab(tabName){
       tabs.forEach(t => t.classList.toggle("active", t.id === tabName));
+      tabButtons.forEach(b => b.classList.toggle("active", b.getAttribute("data-tab") === tabName));
+
       resetAllReveals();
       replayTabAnimations(tabName);
+
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // ===== HAMBURGER =====
-    const burgerBtn = document.getElementById("burgerBtn");
-    const menuPanel = document.getElementById("menuPanel");
-
-    function setMenuOpen(open){
-      menuPanel.classList.toggle("open", open);
-      burgerBtn.setAttribute("aria-expanded", String(open));
-    }
-
-    burgerBtn.addEventListener("click", () => {
-      const isOpen = menuPanel.classList.contains("open");
-      setMenuOpen(!isOpen);
-    });
-
-    document.querySelectorAll("#menuPanel [data-tab]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        openTab(btn.getAttribute("data-tab"));
-        setMenuOpen(false);
-      });
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!menuPanel.classList.contains("open")) return;
-      if (burgerBtn.contains(e.target) || menuPanel.contains(e.target)) return;
-      setMenuOpen(false);
-    });
+    tabButtons.forEach(btn => btn.addEventListener("click", () => openTab(btn.getAttribute("data-tab"))));
 
     // ====== WALLET LIST ======
     const walletBtn = document.getElementById("walletBtn");
     const walletList = document.getElementById("walletList");
-
     function setWalletOpen(open){
       walletList.classList.toggle("open", open);
       walletBtn.setAttribute("aria-expanded", String(open));
       showToast(open ? I18N[currentLang].toast_wallet_open : I18N[currentLang].toast_wallet_close);
     }
-
     walletBtn.addEventListener("click", () => {
       const isOpen = walletList.classList.contains("open");
       setWalletOpen(!isOpen);
     });
 
+    // ====== MENÜ (hamburger) ======
+    const menuBtn = document.getElementById("menuBtn");
+    const menuPanel = document.getElementById("menuPanel");
+
+    function setMenuOpen(open){
+      menuPanel.classList.toggle("open", open);
+      menuBtn.setAttribute("aria-expanded", String(open));
+      showToast(open ? I18N[currentLang].toast_menu_open : I18N[currentLang].toast_menu_close);
+    }
+
+    menuBtn.addEventListener("click", () => {
+      const isOpen = menuPanel.classList.contains("open");
+      setMenuOpen(!isOpen);
+    });
+
+    // Menü elem kattintás -> tab váltás + menü zár
+    menuPanel.querySelectorAll("[data-tab]").forEach(item => {
+      item.addEventListener("click", () => {
+        const tabName = item.getAttribute("data-tab");
+        setMenuOpen(false);
+        openTab(tabName);
+      });
+    });
+
+    // Kattintás máshol -> zárja a menüt és a wallet listát is
     document.addEventListener("click", (e) => {
-      const isOpen = walletList.classList.contains("open");
-      if (!isOpen) return;
-      if (walletBtn.contains(e.target) || walletList.contains(e.target)) return;
-      setWalletOpen(false);
+      // Menu close
+      const menuOpen = menuPanel.classList.contains("open");
+      if (menuOpen && !menuBtn.contains(e.target) && !menuPanel.contains(e.target)) {
+        setMenuOpen(false);
+      }
+      // Wallet close
+      const walletOpen = walletList.classList.contains("open");
+      if (walletOpen && !walletBtn.contains(e.target) && !walletList.contains(e.target)) {
+        setWalletOpen(false);
+      }
     });
 
     // ====== GOMBOK ======
-    document.getElementById("copyContract").addEventListener("click", () => copyText(TOKEN.contract, I18N[currentLang].toast_contract_copied));
-    document.getElementById("copyContractTech").addEventListener("click", () => copyText(TOKEN.contract, I18N[currentLang].toast_contract_copied));
+    document.getElementById("copyContract").addEventListener("click", () =>
+      copyText(TOKEN.contract, I18N[currentLang].toast_contract_copied)
+    );
+    document.getElementById("copyContractTech").addEventListener("click", () =>
+      copyText(TOKEN.contract, I18N[currentLang].toast_contract_copied)
+    );
 
     document.getElementById("openExplorer").addEventListener("click", () => {
       showToast(I18N[currentLang].toast_opening_explorer);
@@ -1210,12 +1214,12 @@
 
       const subject = "StreetCoin – feedback";
       const body =
-        "Szia!\\n\\n" +
-        (name ? ("Név: " + name + "\\n") : "") +
-        (email ? ("Email: " + email + "\\n") : "") +
-        "\\nÜzenet:\\n" +
+        "Szia!\n\n" +
+        (name ? ("Név: " + name + "\n") : "") +
+        (email ? ("Email: " + email + "\n") : "") +
+        "\nÜzenet:\n" +
         (msg ? msg : "(ide írd az üzenetet)") +
-        "\\n\\n—";
+        "\n\n—";
 
       const gmailCompose =
         "https://mail.google.com/mail/?view=cm&fs=1" +
@@ -1227,7 +1231,9 @@
       window.open(gmailCompose, "_blank", "noopener");
     });
 
-    document.getElementById("copyEmail").addEventListener("click", () => copyText(TOKEN.email, I18N[currentLang].toast_email_copied));
+    document.getElementById("copyEmail").addEventListener("click", () =>
+      copyText(TOKEN.email, I18N[currentLang].toast_email_copied)
+    );
 
     // ====== START ======
     resetAllReveals();
